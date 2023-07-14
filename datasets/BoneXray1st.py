@@ -15,16 +15,16 @@ class TrainingDataset(Dataset):
 
     def __init__(self,
                  split_fold: int | str,
-                 image_size: tuple[int, int],
-                 load_size: tuple[int, int],
+                 # image_size: tuple[int, int],
+                 # load_size: tuple[int, int],
                  aug_conf: str,
                  mode: str,
                  n_worker,
                  preload=False,
                  verbose=True):
         self.split_fold = split_fold
-        self.image_size = image_size
-        self.load_size = load_size
+        self.image_size = tuple(256, 128)
+        self.load_size = tuple(300, 256)
         self.n_worker = n_worker
         self.preload = preload
         self.verbose = verbose

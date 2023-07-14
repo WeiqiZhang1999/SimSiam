@@ -17,7 +17,8 @@ from datasets.BoneXray1st import TrainingDataset
 
 
 def main(device, args):
-    dataset_train = TrainingDataset(split_fold=0, image_size=args.dataset.image_size, load_size=args.dataset.load_size,
+    dataset_train = TrainingDataset(split_fold=0,
+                                    # image_size=args.dataset.image_size, load_size=args.dataset.load_size,
                                     aug_conf="paired_synthesis", n_worker=args.dataset.num_workers, mode='train')
 
     train_loader = torch.utils.data.DataLoader(
@@ -52,7 +53,7 @@ def main(device, args):
         model.train()
         loss_epoch = 0.
         local_progress=tqdm(train_loader, desc=f'Epoch {epoch}/{args.train.num_epochs}', disable=args.hide_progress)
-        for idx, images in enumerate(local_progress):
+        for idx, (images) in enumerate(local_progress):
 
             model.zero_grad()
             data_dict = model.forward(images[0].to(device, non_blocking=True), images[1].to(device, non_blocking=True))
