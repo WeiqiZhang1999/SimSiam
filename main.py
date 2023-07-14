@@ -73,7 +73,7 @@ def main(device, args):
         logger.update_scalers(epoch_dict)
     
     # Save checkpoint
-    if epoch + 1 == 100 or epoch + 1 == 200:
+    if (epoch + 1) % 100 == 0:
         save_path = os.path.join('workspace', args.name, args.ckpt_dir)
         os.makedirs(save_path, exist_ok=True)
         torch.save(model.backbone.encoder.state_dict(), os.path.join(save_path, 'ckp_netG_enc.pt'))
