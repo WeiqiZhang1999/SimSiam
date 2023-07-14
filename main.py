@@ -17,7 +17,7 @@ from datasets import BoneXray1st
 
 
 def main(device, args):
-    dataset_train = BoneXray1st(split_fold=0, image_size=args.img_size, load_size=args.img_size,
+    dataset_train = BoneXray1st(split_fold=0, image_size=args.dataset.img_size, load_size=args.dataset.load_size,
                                     aug_conf="paired_synthesis", n_worker=args.workers, mode='train')
 
     train_loader = torch.utils.data.DataLoader(
