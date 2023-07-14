@@ -20,7 +20,7 @@ class TrainingDataset(Dataset):
                  aug_conf: str,
                  mode: str,
                  n_worker,
-                 preload=True,
+                 preload=False,
                  verbose=True):
         self.split_fold = split_fold
         self.image_size = image_size
