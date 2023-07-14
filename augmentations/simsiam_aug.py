@@ -44,9 +44,9 @@ class NewSimSiamTransform():
         ])
 
     def __call__(self, x):
-        x1 = self.transform(x)
-        x2 = self.transform(x)
-        return [x1, x2]
+        x1 = self.transform(image=x)
+        x2 = self.transform(image=x)
+        return [x1['image'], x2['image']]
 
 def to_pil_image(pic, mode=None):
     """Convert a tensor or an ndarray to PIL Image.
