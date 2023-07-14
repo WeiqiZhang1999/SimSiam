@@ -70,7 +70,7 @@ def get_args():
         args.dataset.num_workers = 0
 
     print(args)
-    assert not None in [args.log_dir, args.data_dir, args.ckpt_dir, args.name]
+    assert not None in [args.log_dir, args.ckpt_dir, args.name]
 
     # args.log_dir = os.path.join(args.log_dir, 'in-progress_'+datetime.now().strftime('%m%d%H%M%S_')+args.name)
 
