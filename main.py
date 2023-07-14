@@ -9,44 +9,23 @@ from arguments import get_args
 from augmentations import get_aug
 from models import get_model
 from tools import AverageMeter, knn_monitor, Logger, file_exist_check
-from datasets import get_dataset
+from datasets import get_dataset, BoneXray1st
 from optimizers import get_optimizer, LR_Scheduler
 from linear_eval import main as linear_eval
 from datetime import datetime
 
 def main(device, args):
+    dataset_train = TrainingDataset(split_fold=0, image_size=args.img_size, load_size=args.img_size,
+                                    aug_conf="paired_synthesis", n_worker=args.workers, mode='train')
 
     train_loader = torch.utils.data.DataLoader(
-        dataset=get_dataset(
-            transform=get_aug(train=True, **args.aug_kwargs), 
-            train=True,
-            **args.dataset_kwargs),
+        dataset_train, batch_size=args.train.batch_size,
         shuffle=True,
-        batch_size=args.train.batch_size,
-        **args.dataloader_kwargs
-    )
-    memory_loader = torch.utils.data.DataLoader(
-        dataset=get_dataset(
-            transform=get_aug(train=False, train_classifier=False, **args.aug_kwargs), 
-            train=True,
-            **args.dataset_kwargs),
-        shuffle=False,
-        batch_size=args.train.batch_size,
-        **args.dataloader_kwargs
-    )
-    test_loader = torch.utils.data.DataLoader(
-        dataset=get_dataset( 
-            transform=get_aug(train=False, train_classifier=False, **args.aug_kwargs), 
-            train=False,
-            **args.dataset_kwargs),
-        shuffle=False,
-        batch_size=args.train.batch_size,
-        **args.dataloader_kwargs
-    )
+        **args.dataloader_kwargs)
 
     # define model
     model = get_model(args.model).to(device)
-    model = torch.nn.DataParallel(model)
+    # model = torch.nn.DataParallel(model)
 
     # define optimizer
     optimizer = get_optimizer(
@@ -64,18 +43,19 @@ def main(device, args):
     )
 
     logger = Logger(tensorboard=args.logger.tensorboard, matplotlib=args.logger.matplotlib, log_dir=args.log_dir)
-    accuracy = 0 
+    accuracy = 0.
     # Start training
     global_progress = tqdm(range(0, args.train.stop_at_epoch), desc=f'Training')
     for epoch in global_progress:
         model.train()
-        
+        loss_epoch = 0.
         local_progress=tqdm(train_loader, desc=f'Epoch {epoch}/{args.train.num_epochs}', disable=args.hide_progress)
-        for idx, ((images1, images2), labels) in enumerate(local_progress):
+        for idx, images in enumerate(local_progress):
 
             model.zero_grad()
-            data_dict = model.forward(images1.to(device, non_blocking=True), images2.to(device, non_blocking=True))
+            data_dict = model.forward(images[0].to(device, non_blocking=True), images[1].to(device, non_blocking=True))
             loss = data_dict['loss'].mean() # ddp
+            loss_epoch += loss
             loss.backward()
             optimizer.step()
             lr_scheduler.step()
@@ -84,22 +64,19 @@ def main(device, args):
             local_progress.set_postfix(data_dict)
             logger.update_scalers(data_dict)
 
-        if args.train.knn_monitor and epoch % args.train.knn_interval == 0: 
-            accuracy = knn_monitor(model.module.backbone, memory_loader, test_loader, device, k=min(args.train.knn_k, len(memory_loader.dataset)), hide_progress=args.hide_progress) 
-        
-        epoch_dict = {"epoch":epoch, "accuracy":accuracy}
+
+        epoch_dict = {"epoch":epoch, "loss":loss_epoch}
         global_progress.set_postfix(epoch_dict)
         logger.update_scalers(epoch_dict)
     
     # Save checkpoint
-    model_path = os.path.join(args.ckpt_dir, f"{args.name}_{datetime.now().strftime('%m%d%H%M%S')}.pth") # datetime.now().strftime('%Y%m%d_%H%M%S')
-    torch.save({
-        'epoch': epoch+1,
-        'state_dict':model.module.state_dict()
-    }, model_path)
-    print(f"Model saved to {model_path}")
-    with open(os.path.join(args.log_dir, f"checkpoint_path.txt"), 'w+') as f:
-        f.write(f'{model_path}')
+    if epoch + 1 == 100 or epoch + 1 == 200:
+        save_path = os.path.join('workspace', args.name, args.ckpt_dir)
+        os.makedirs(save_path, exist_ok=True)
+        torch.save(model.backbone.encoder.state_dict(), os.path.join(save_path, 'ckp_netG_enc.pt'))
+        torch.save(model.backbone.fuse.state_dict(),
+                   os.path.join(save_path, 'ckp_netG_fus.pt'))
+        print(f"Model saved {epoch + 1}")
 
     if args.eval is not False:
         args.eval_from = model_path
@@ -108,15 +85,16 @@ def main(device, args):
 
 if __name__ == "__main__":
     args = get_args()
-
+    logs_save_path = os.path.join('workspace', args.name, args.log_dir)
+    os.makedirs(logs_save_path, exist_ok=True)
     main(device=args.device, args=args)
 
-    completed_log_dir = args.log_dir.replace('in-progress', 'debug' if args.debug else 'completed')
-
-
-
-    os.rename(args.log_dir, completed_log_dir)
-    print(f'Log file has been saved to {completed_log_dir}')
+    # completed_log_dir = args.log_dir.replace('in-progress', 'debug' if args.debug else 'completed')
+    #
+    #
+    #
+    # os.rename(args.log_dir, completed_log_dir)
+    # print(f'Log file has been saved to {completed_log_dir}')
 
 
 

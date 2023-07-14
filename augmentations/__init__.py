@@ -2,7 +2,7 @@ from .simsiam_aug import SimSiamTransform
 from .eval_aug import Transform_single
 from .byol_aug import BYOL_transform
 from .simclr_aug import SimCLRTransform
-def get_aug(name='simsiam', image_size=224, train=True, train_classifier=None):
+def get_aug(name='simsiam', image_size=(256, 128), train=True, train_classifier=None):
 
     if train==True:
         if name == 'simsiam':

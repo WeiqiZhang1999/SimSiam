@@ -18,7 +18,7 @@ def get_backbone(backbone, castrate=True):
 def get_model(model_cfg):    
 
     if model_cfg.name == 'simsiam':
-        model =  SimSiam(get_backbone(model_cfg.backbone))
+        model =  SimSiam()
         if model_cfg.proj_layers is not None:
             model.projector.set_layers(model_cfg.proj_layers)
 

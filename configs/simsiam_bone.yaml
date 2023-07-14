@@ -1,12 +1,14 @@
-name: simsiam-cifar10-experiment-resnet18_cifar_variant1
+name: simsiam-bone-experiment-hrformer
 dataset: 
-  name: cifar10
-  image_size: 32
+  name: bone
+  image_size: (256, 128)
   num_workers: 4
 
+ckpt_dir: ckpt
+log_dir: logs
 model: 
   name: simsiam
-  backbone: resnet18_cifar_variant1
+  backbone: hrformer
   proj_layers: 2
 
 train:
@@ -20,19 +22,7 @@ train:
   final_lr: 0
   num_epochs: 800 # this parameter influence the lr decay
   stop_at_epoch: 800 # has to be smaller than num_epochs
-  batch_size: 512
-
-eval: # linear evaluation, False will turn off automatic evaluation after training
-  optimizer: 
-    name: sgd
-    weight_decay: 0
-    momentum: 0.9
-  warmup_lr: 0
-  warmup_epochs: 0
-  base_lr: 30
-  final_lr: 0
-  batch_size: 256
-  num_epochs: 100
+  batch_size: 16
 
 logger:
   tensorboard: True

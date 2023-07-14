@@ -1,9 +1,10 @@
 import torchvision.transforms as T
-try:
-    from torchvision.transforms import GaussianBlur
-except ImportError:
-    from .gaussian_blur import GaussianBlur
-    T.GaussianBlur = GaussianBlur
+import albumentations as A
+# try:
+#     from torchvision.transforms import GaussianBlur
+# except ImportError:
+#     from .gaussian_blur import GaussianBlur
+#     T.GaussianBlur = GaussianBlur
     
 imagenet_mean_std = [[0.485, 0.456, 0.406],[0.229, 0.224, 0.225]]
 
@@ -28,6 +29,24 @@ class SimSiamTransform():
         x2 = self.transform(x)
         return x1, x2 
 
+
+class NewSimSiamTransform():
+    def __init__(self, image_size):
+        # the paper didn't specify this, feel free to change this value
+        # I use the setting from simclr which is 50% chance applying the gaussian blur
+        # the 32 is prepared for cifar training where they disabled gaussian blur
+        self.transform = A.Compose([
+            A.RandomResizedCrop(img_size[0], img_size[1], scale=(0.2, 1.)),
+            A.HorizontalFlip(),
+            A.ColorJitter(0.4, 0.4, 0.4, 0.1, p=0.8),
+            A.GaussianBlur(p=0.2),
+            T.ToTensor(),
+        ])
+
+    def __call__(self, x):
+        x1 = self.transform(x)
+        x2 = self.transform(x)
+        return [x1, x2]
 
 def to_pil_image(pic, mode=None):
     """Convert a tensor or an ndarray to PIL Image.

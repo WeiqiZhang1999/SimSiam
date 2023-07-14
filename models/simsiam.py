@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F 
 from torchvision.models import resnet50
-
+from Network.model.HRFormer.HRFormer import BaseHRFormer
 
 def D(p, z, version='simplified'): # negative cosine similarity
     if version == 'original':
@@ -87,11 +87,13 @@ class prediction_MLP(nn.Module):
         return x 
 
 class SimSiam(nn.Module):
-    def __init__(self, backbone=resnet50()):
+    def __init__(self):
         super().__init__()
         
-        self.backbone = backbone
-        self.projector = projection_MLP(backbone.output_dim)
+        self.backbone = BaseHRFormer(in_channel=1, num_classes=2048)
+        self.backbone.output_dim = self.backbone.fc.in_features
+        self.backbone.fc = torch.nn.Identity()
+        self.projector = projection_MLP(self.backbone.output_dim)
 
         self.encoder = nn.Sequential( # f encoder
             self.backbone,
@@ -114,7 +116,7 @@ class SimSiam(nn.Module):
 
 if __name__ == "__main__":
     model = SimSiam()
-    x1 = torch.randn((2, 3, 224, 224))
+    x1 = torch.randn((2, 1, 256, 128))
     x2 = torch.randn_like(x1)
 
     model.forward(x1, x2).backward()
