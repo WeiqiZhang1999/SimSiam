@@ -40,13 +40,13 @@ class NewSimSiamTransform():
             A.HorizontalFlip(),
             A.ColorJitter(0.4, 0.4, 0.4, 0.1, p=0.8),
             A.GaussianBlur(p=0.2),
-            T.ToTensor(),
         ])
+        self.to_tensor = T.ToTensor()
 
     def __call__(self, x):
         x1 = self.transform(image=x)
         x2 = self.transform(image=x)
-        return [x1['image'], x2['image']]
+        return [self.to_tensor(x1['image']), self.to_tensor(x2['image'])]
 
 def to_pil_image(pic, mode=None):
     """Convert a tensor or an ndarray to PIL Image.
