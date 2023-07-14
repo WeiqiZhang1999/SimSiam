@@ -13,7 +13,7 @@ from datasets import get_dataset, BoneXray1st
 from optimizers import get_optimizer, LR_Scheduler
 from linear_eval import main as linear_eval
 from datetime import datetime
-from datasets import BoneXray1st
+from datasets.BoneXray1st import TrainingDataset
 
 
 def main(device, args):
