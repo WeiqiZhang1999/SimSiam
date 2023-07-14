@@ -24,7 +24,7 @@ class TrainingDataset(Dataset):
                  verbose=True):
         self.split_fold = split_fold
         self.image_size = tuple(256, 128)
-        self.load_size = tuple(300, 256)
+        self.load_size = tuple(300, 150)
         self.n_worker = n_worker
         self.preload = preload
         self.verbose = verbose
