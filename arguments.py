@@ -86,12 +86,12 @@ def get_args():
         'name':args.model.name,
         'image_size': args.dataset.image_size
     }
-    vars(args)['dataset_kwargs'] = {
-        'dataset':args.dataset.name,
-        'data_dir': args.data_dir,
-        'download':args.download,
-        'debug_subset_size': args.debug_subset_size if args.debug else None,
-    }
+    # vars(args)['dataset_kwargs'] = {
+    #     'dataset':args.dataset.name,
+    #     # 'data_dir': args.data_dir,
+    #     # 'download':args.download,
+    #     # 'debug_subset_size': args.debug_subset_size if args.debug else None,
+    # }
     vars(args)['dataloader_kwargs'] = {
         'drop_last': True,
         'pin_memory': True,
