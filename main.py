@@ -13,9 +13,11 @@ from datasets import get_dataset, BoneXray1st
 from optimizers import get_optimizer, LR_Scheduler
 from linear_eval import main as linear_eval
 from datetime import datetime
+from datasets import BoneXray1st
+
 
 def main(device, args):
-    dataset_train = TrainingDataset(split_fold=0, image_size=args.img_size, load_size=args.img_size,
+    dataset_train = BoneXray1st(split_fold=0, image_size=args.img_size, load_size=args.img_size,
                                     aug_conf="paired_synthesis", n_worker=args.workers, mode='train')
 
     train_loader = torch.utils.data.DataLoader(
