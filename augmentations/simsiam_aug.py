@@ -36,7 +36,7 @@ class NewSimSiamTransform():
         # I use the setting from simclr which is 50% chance applying the gaussian blur
         # the 32 is prepared for cifar training where they disabled gaussian blur
         self.transform = A.Compose([
-            A.RandomResizedCrop(img_size[0], img_size[1], scale=(0.2, 1.)),
+            A.RandomResizedCrop(image_size[0], image_size[1], scale=(0.2, 1.)),
             A.HorizontalFlip(),
             A.ColorJitter(0.4, 0.4, 0.4, 0.1, p=0.8),
             A.GaussianBlur(p=0.2),
