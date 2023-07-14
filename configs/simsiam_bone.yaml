@@ -2,7 +2,7 @@ name: simsiam-bone-experiment-hrformer
 dataset: 
   name: bone
   load_size: (300, 150)
-  image_size: (256, 128)
+  img_size: (256, 128)
   num_workers: 4
 
 ckpt_dir: ckpt
