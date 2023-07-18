@@ -45,13 +45,14 @@ def main(device, args):
         constant_predictor_lr=True # see the end of section 4.2 predictor
     )
 
-    logger = Logger(tensorboard=args.logger.tensorboard, matplotlib=args.logger.matplotlib, log_dir=args.log_dir)
+    logger = Logger(tensorboard=args.logger.tensorboard, matplotlib=args.logger.matplotlib, log_dir=os.path.join('workspace', args.name, args.log_dir))
     accuracy = 0.
     # Start training
     global_progress = tqdm(range(0, args.train.stop_at_epoch), desc=f'Training')
     for epoch in global_progress:
         model.train()
         loss_epoch = 0.
+        B = 0.
         local_progress=tqdm(train_loader, desc=f'Epoch {epoch}/{args.train.num_epochs}', disable=args.hide_progress)
         for idx, (images) in enumerate(local_progress):
 
@@ -67,23 +68,25 @@ def main(device, args):
             local_progress.set_postfix(data_dict)
             logger.update_scalers(data_dict)
 
+            B += 1
 
-        epoch_dict = {"epoch":epoch, "loss":loss_epoch}
+
+        epoch_dict = {"epoch":epoch + 1, "loss":loss_epoch / B}
         global_progress.set_postfix(epoch_dict)
         logger.update_scalers(epoch_dict)
     
     # Save checkpoint
-    if (epoch + 1) % 100 == 0:
-        save_path = os.path.join('workspace', args.name, args.ckpt_dir)
-        os.makedirs(save_path, exist_ok=True)
-        torch.save(model.backbone.encoder.state_dict(), os.path.join(save_path, 'ckp_netG_enc.pt'))
-        torch.save(model.backbone.fuse.state_dict(),
-                   os.path.join(save_path, 'ckp_netG_fus.pt'))
-        print(f"Model saved {epoch + 1}")
+        if (epoch + 1) % 100 == 0:
+            save_path = os.path.join('workspace', args.name, args.ckpt_dir)
+            os.makedirs(save_path, exist_ok=True)
+            torch.save(model.backbone.encoder.state_dict(), os.path.join(save_path, f'ckp_netG_enc_{epoch + 1}.pt'))
+            torch.save(model.backbone.fuse.state_dict(),
+                       os.path.join(save_path, f'ckp_netG_fus_{epoch + 1}.pt'))
+            print(f"Model saved {epoch + 1}")
 
-    if args.eval is not False:
-        args.eval_from = model_path
-        linear_eval(args)
+    # if args.eval is not False:
+    #     args.eval_from = model_path
+    #     linear_eval(args)
 
 
 if __name__ == "__main__":
