@@ -9,11 +9,12 @@ from arguments import get_args
 from augmentations import get_aug
 from models import get_model
 from tools import AverageMeter, knn_monitor, Logger, file_exist_check
-from datasets import get_dataset, BoneXray1st
+from datasets import get_dataset, BoneXray1st, LumbarBoneXray1st
 from optimizers import get_optimizer, LR_Scheduler
 from linear_eval import main as linear_eval
 from datetime import datetime
-from datasets.BoneXray1st import TrainingDataset
+# from datasets.BoneXray1st import TrainingDataset
+from datasets.LumbarBoneXray1st import TrainingDataset
 
 
 def main(device, args):
