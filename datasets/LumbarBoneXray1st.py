@@ -46,7 +46,7 @@ class TrainingDataset(Dataset):
         self.xp_pool = []
         # self.drr_pool = []
         for case_name in training_case_names:
-            xp_case_name = f"{case_name}_lumbarROI_DRR_{self.view}.mhd"
+            xp_case_name = f"{case_name}_lumbarROI_DRR_AP.mhd"
             case_xp_dir = OSHelper.path_join(self.xp_root, xp_case_name)
             self.xp_pool.append(case_xp_dir)
 
